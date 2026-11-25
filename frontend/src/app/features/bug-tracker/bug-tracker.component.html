@@ -1,0 +1,196 @@
+<div class="bug-tracker-container">
+  <!-- Topbar / Header -->
+  <header class="page-header">
+    <div class="title-group">
+      <h1>Bug Tracker & Defect Management</h1>
+      <p>Log defects, link to broken requirements and test cases, and manage bug lifecycle</p>
+    </div>
+
+    <div class="header-actions">
+      <!-- Project Selector -->
+      <div class="project-selector" *ngIf="projects.length > 0">
+        <label for="projSelect">Project:</label>
+        <select
+          id="projSelect"
+          [ngModel]="selectedProject?.id"
+          (ngModelChange)="onProjectChange($event)"
+          class="form-control"
+        >
+          <option *ngFor="let p of projects" [value]="p.id">
+            [{{ p.key }}] {{ p.name }}
+          </option>
+        </select>
+      </div>
+
+      <button
+        mat-flat-button
+        color="warn"
+        (click)="openCreateBugDialog()"
+        [disabled]="!selectedProject"
+        class="btn-report-bug"
+      >
+        <mat-icon>add</mat-icon>
+        <span>Report Bug</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Stats Cards Row -->
+  <section class="stats-row" *ngIf="stats">
+    <div class="stat-card total">
+      <div class="stat-number">{{ stats.total }}</div>
+      <div class="stat-label">Total Defects</div>
+    </div>
+    <div class="stat-card open">
+      <div class="stat-number">{{ stats.open }}</div>
+      <div class="stat-label">🔴 Open</div>
+    </div>
+    <div class="stat-card in-prog">
+      <div class="stat-number">{{ stats.in_progress }}</div>
+      <div class="stat-label">🟡 In Progress</div>
+    </div>
+    <div class="stat-card resolved">
+      <div class="stat-number">{{ stats.resolved }}</div>
+      <div class="stat-label">🟢 Resolved</div>
+    </div>
+  </section>
+
+  <!-- Filter Controls -->
+  <section class="filters-bar" *ngIf="selectedProject">
+    <div class="filters-left">
+      <div class="search-box">
+        <mat-icon>search</mat-icon>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="loadBugsAndStats()"
+          placeholder="Search by title, description, or key..."
+          class="search-input"
+        />
+      </div>
+
+      <select
+        [(ngModel)]="selectedStatus"
+        (ngModelChange)="loadBugsAndStats()"
+        class="filter-select"
+      >
+        <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
+      </select>
+
+      <select
+        [(ngModel)]="selectedSeverity"
+        (ngModelChange)="loadBugsAndStats()"
+        class="filter-select"
+      >
+        <option *ngFor="let s of severities" [value]="s.value">{{ s.label }}</option>
+      </select>
+
+      <select
+        [(ngModel)]="selectedPriority"
+        (ngModelChange)="loadBugsAndStats()"
+        class="filter-select"
+      >
+        <option *ngFor="let p of priorities" [value]="p.value">{{ p.label }}</option>
+      </select>
+    </div>
+
+    <span class="count-label">{{ totalCount }} defects found</span>
+  </section>
+
+  <!-- Error Alert -->
+  <div *ngIf="errorMessage" class="error-banner">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <mat-spinner diameter="36"></mat-spinner>
+    <p>Loading defects...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && bugs.length === 0" class="empty-state">
+    <div class="empty-icon">
+      <mat-icon>pest_control</mat-icon>
+    </div>
+    <h3>No Bugs Reported</h3>
+    <p>All clean! You can report defects manually or from failed test execution items.</p>
+    <button
+      mat-flat-button
+      color="warn"
+      (click)="openCreateBugDialog()"
+      [disabled]="!selectedProject"
+    >
+      <mat-icon>add</mat-icon>
+      <span>Report First Bug</span>
+    </button>
+  </div>
+
+  <!-- Bugs Table -->
+  <div *ngIf="!isLoading && bugs.length > 0" class="bugs-table-container">
+    <table class="bugs-table">
+      <thead>
+        <tr>
+          <th>Defect Key</th>
+          <th>Summary</th>
+          <th>Severity</th>
+          <th>Priority</th>
+          <th>Status</th>
+          <th>Traceability</th>
+          <th>Reported</th>
+          <th style="width: 100px; text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let bug of bugs" (click)="openBugDetail(bug)" class="bug-row">
+          <td class="key-cell">
+            <span class="bug-key-badge">{{ bug.bug_key }}</span>
+          </td>
+
+          <td class="summary-cell">
+            <div class="bug-title">{{ bug.title }}</div>
+            <div *ngIf="bug.environment" class="bug-env">Env: {{ bug.environment }}</div>
+          </td>
+
+          <td>
+            <span class="pill severity" [class]="bug.severity">{{ bug.severity }}</span>
+          </td>
+
+          <td>
+            <span class="pill priority" [class]="bug.priority">{{ bug.priority }}</span>
+          </td>
+
+          <td>
+            <span class="status-badge" [class]="bug.status">{{ bug.status }}</span>
+          </td>
+
+          <td class="trace-cell">
+            <span *ngIf="bug.tc_key" class="trace-pill tc" title="Linked Test Case">
+              🔬 {{ bug.tc_key }}
+            </span>
+            <span *ngIf="bug.requirement_key" class="trace-pill req" title="Linked Requirement">
+              📋 {{ bug.requirement_key }}
+            </span>
+            <span *ngIf="!bug.tc_key && !bug.requirement_key" class="no-trace">-</span>
+          </td>
+
+          <td class="date-cell">
+            {{ bug.created_at | date:'shortDate' }}
+          </td>
+
+          <td class="actions-cell">
+            <button
+              mat-icon-button
+              color="warn"
+              matTooltip="Delete Bug"
+              (click)="deleteBug(bug, $event)"
+            >
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

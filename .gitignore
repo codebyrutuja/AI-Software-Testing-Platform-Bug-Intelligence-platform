@@ -1,0 +1,51 @@
+# ════════════════════════════════════════════════════════════
+# ROOT-LEVEL GITIGNORE — AI Testing Platform
+# ════════════════════════════════════════════════════════════
+
+# ── 1. Secrets & Environment Variables (CRITICAL) ────────────
+.env
+*.env
+.env.local
+.env.production
+.env.staging
+.env.*.local
+
+# ── 2. Python & Backend ──────────────────────────────────────
+backend/venv/
+backend/.venv/
+venv/
+.venv/
+ENV/
+env/
+**/__pycache__/
+**/*.py[cod]
+*$py.class
+backend/.pytest_cache/
+.pytest_cache/
+backend/.coverage
+.coverage
+htmlcov/
+backend/uploads/
+uploads/
+
+# ── 3. Node.js & Angular Frontend ────────────────────────────
+frontend/node_modules/
+node_modules/
+frontend/dist/
+dist/
+frontend/.angular/
+.angular/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ── 4. Editors, IDEs & OS Junk ───────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini

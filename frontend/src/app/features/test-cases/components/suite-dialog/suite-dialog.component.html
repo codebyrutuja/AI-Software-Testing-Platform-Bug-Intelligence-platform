@@ -1,0 +1,100 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+    <div class="flex items-center gap-2">
+      <div class="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+        <mat-icon>folder</mat-icon>
+      </div>
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900">
+          {{ isEditMode ? 'Edit Test Suite' : 'New Test Suite' }}
+        </h2>
+        <p class="text-xs text-gray-500">Group test cases by module or functional domain</p>
+      </div>
+    </div>
+    <button (click)="onCancel()" class="text-gray-400 hover:text-gray-600">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="errorMessage" class="mt-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm flex items-center gap-2">
+    <mat-icon class="text-red-500 text-base">error_outline</mat-icon>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Form -->
+  <form [formGroup]="suiteForm" (ngSubmit)="onSubmit()" class="mt-5 space-y-4">
+    <!-- Suite Name -->
+    <div>
+      <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+        Suite Name *
+      </label>
+      <input
+        type="text"
+        formControlName="name"
+        placeholder="e.g. Authentication, Checkout & Payments"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      />
+      <p *ngIf="suiteForm.get('name')?.touched && suiteForm.get('name')?.invalid" class="text-xs text-red-500 mt-1">
+        Suite name is required (minimum 2 characters).
+      </p>
+    </div>
+
+    <!-- Parent Suite (Optional) -->
+    <div>
+      <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+        Parent Suite (Optional)
+      </label>
+      <select
+        formControlName="parent_suite_id"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      >
+        <option value="">None (Top-Level Suite)</option>
+        <option
+          *ngFor="let s of data.existingSuites"
+          [value]="s.id"
+          [disabled]="isEditMode && s.id === data.suite?.id"
+        >
+          {{ s.name }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Description -->
+    <div>
+      <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+        Description
+      </label>
+      <textarea
+        formControlName="description"
+        rows="3"
+        placeholder="Brief description of the test coverage for this suite..."
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      ></textarea>
+    </div>
+
+    <!-- Actions -->
+    <div class="pt-4 flex justify-end gap-3 border-t border-gray-100">
+      <button
+        type="button"
+        mat-button
+        (click)="onCancel()"
+        [disabled]="isLoading"
+        class="text-gray-600"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        mat-flat-button
+        color="primary"
+        [disabled]="suiteForm.invalid || isLoading"
+        class="flex items-center gap-2"
+      >
+        <mat-spinner *ngIf="isLoading" diameter="18" class="inline-block"></mat-spinner>
+        <span>{{ isEditMode ? 'Save Changes' : 'Create Suite' }}</span>
+      </button>
+    </div>
+  </form>
+</div>

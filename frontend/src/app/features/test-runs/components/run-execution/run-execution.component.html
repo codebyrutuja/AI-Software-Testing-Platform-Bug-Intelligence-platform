@@ -1,0 +1,230 @@
+<div class="execution-container" *ngIf="!isLoading && run">
+  <!-- Top Banner / Header -->
+  <header class="execution-header">
+    <div class="header-left">
+      <a [routerLink]="['/test-runs']" class="back-link">
+        <mat-icon>arrow_back</mat-icon>
+        <span>Back to Runs</span>
+      </a>
+      <div class="run-title-group">
+        <span class="run-key">{{ run.run_key }}</span>
+        <h1>{{ run.name }}</h1>
+        <span class="badge status" [class]="run.status">{{ run.status }}</span>
+        <span class="badge env">{{ run.environment }}</span>
+      </div>
+    </div>
+
+    <!-- Progress Meter -->
+    <div class="header-right">
+      <div class="progress-info">
+        <span class="progress-text">
+          Progress: {{ run.total_count - run.not_run_count }} / {{ run.total_count }} ({{ getProgressPercentage() }}%)
+        </span>
+        <div class="progress-bar-container">
+          <div class="progress-segment passed" [style.width.%]="(run.passed_count / run.total_count) * 100"></div>
+          <div class="progress-segment failed" [style.width.%]="(run.failed_count / run.total_count) * 100"></div>
+          <div class="progress-segment blocked" [style.width.%]="(run.blocked_count / run.total_count) * 100"></div>
+          <div class="progress-segment skipped" [style.width.%]="(run.skipped_count / run.total_count) * 100"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Error Alert -->
+  <div *ngIf="errorMessage" class="error-banner">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Split Main Workspace -->
+  <div class="workspace-split">
+    <!-- Left: Test Cases In Run List -->
+    <aside class="items-sidebar">
+      <div class="sidebar-header">
+        <h3>Test Cases ({{ run.items.length }})</h3>
+      </div>
+      <div class="items-list">
+        <div
+          *ngFor="let item of run.items; let idx = index"
+          class="item-card"
+          [class.active]="activeItem?.id === item.id"
+          (click)="selectItem(item)"
+        >
+          <div class="item-left">
+            <span class="item-index">{{ idx + 1 }}</span>
+            <div class="item-titles">
+              <span class="tc-key">{{ item.tc_key || 'TC' }}</span>
+              <span class="tc-name" [title]="item.tc_title">{{ item.tc_title }}</span>
+            </div>
+          </div>
+          <div class="item-right">
+            <span class="result-badge" [class]="item.result">
+              {{ item.result === 'not_run' ? 'Not Run' : item.result }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right: Active Execution Panel -->
+    <main class="execution-panel" *ngIf="activeItem">
+      <!-- Loading State -->
+      <div *ngIf="isLoadingCase" class="panel-loading">
+        <mat-spinner diameter="32"></mat-spinner>
+        <span>Loading test case procedure...</span>
+      </div>
+
+      <div *ngIf="!isLoadingCase && activeTestCase" class="case-content">
+        <!-- Test Case Header Details -->
+        <section class="case-header-card">
+          <div class="meta-row">
+            <span class="tc-key-pill">{{ activeTestCase.tc_key }}</span>
+            <span class="badge priority" [class]="activeTestCase.priority">{{ activeTestCase.priority }}</span>
+            <span class="badge type">{{ activeTestCase.test_type }}</span>
+            <span class="est-duration">⏱ {{ activeTestCase.estimated_duration_minutes }}m</span>
+          </div>
+          <h2>{{ activeTestCase.title }}</h2>
+          <p *ngIf="activeTestCase.description" class="description">{{ activeTestCase.description }}</p>
+
+          <div *ngIf="activeTestCase.preconditions" class="preconditions-box">
+            <strong>Preconditions:</strong>
+            <p>{{ activeTestCase.preconditions }}</p>
+          </div>
+        </section>
+
+        <!-- Test Steps Table -->
+        <section class="steps-card">
+          <h3>Test Steps</h3>
+          <div *ngIf="activeTestCase.steps.length === 0" class="no-steps">
+            No steps defined for this test case.
+          </div>
+          <table *ngIf="activeTestCase.steps.length > 0" class="steps-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;">#</th>
+                <th>Action</th>
+                <th>Test Data</th>
+                <th>Expected Result</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let step of activeTestCase.steps">
+                <td class="step-num">{{ step.step_number }}</td>
+                <td>{{ step.action }}</td>
+                <td class="test-data">{{ step.test_data || '-' }}</td>
+                <td class="expected-result">{{ step.expected_result }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Result Logging Action Bar -->
+        <section class="action-card">
+          <h3>Log Execution Result</h3>
+
+          <div class="result-buttons">
+            <button
+              type="button"
+              class="btn-result pass"
+              [class.active]="selectedResult === 'passed'"
+              (click)="selectedResult = 'passed'"
+            >
+              <mat-icon>check_circle</mat-icon>
+              <span>Pass</span>
+            </button>
+
+            <button
+              type="button"
+              class="btn-result fail"
+              [class.active]="selectedResult === 'failed'"
+              (click)="selectedResult = 'failed'"
+            >
+              <mat-icon>cancel</mat-icon>
+              <span>Fail</span>
+            </button>
+
+            <button
+              type="button"
+              class="btn-result block"
+              [class.active]="selectedResult === 'blocked'"
+              (click)="selectedResult = 'blocked'"
+            >
+              <mat-icon>block</mat-icon>
+              <span>Blocked</span>
+            </button>
+
+            <button
+              type="button"
+              class="btn-result skip"
+              [class.active]="selectedResult === 'skipped'"
+              (click)="selectedResult = 'skipped'"
+            >
+              <mat-icon>skip_next</mat-icon>
+              <span>Skip</span>
+            </button>
+          </div>
+
+          <!-- Failure Notes Area (Conditional when Fail is selected) -->
+          <div *ngIf="selectedResult === 'failed'" class="failure-section">
+            <label for="failNotes">Failure Details / Error Notes <span class="required">*</span></label>
+            <textarea
+              id="failNotes"
+              [(ngModel)]="failureNotes"
+              rows="3"
+              placeholder="Describe what broke, error messages, or unexpected outcome..."
+              class="form-control"
+            ></textarea>
+          </div>
+
+          <!-- Duration and Submit -->
+          <div class="submit-row">
+            <div class="duration-input">
+              <label for="duration">Actual Duration (minutes):</label>
+              <input
+                id="duration"
+                type="number"
+                min="1"
+                max="999"
+                [(ngModel)]="actualDuration"
+                placeholder="e.g. 5"
+                class="form-control-sm"
+              />
+            </div>
+
+            <div class="actions-right">
+              <!-- Quick Report Bug Button (Enabled if Failed) -->
+              <button
+                *ngIf="activeItem.result === 'failed' || selectedResult === 'failed'"
+                mat-stroked-button
+                color="warn"
+                type="button"
+                (click)="openBugReport()"
+                class="btn-bug"
+              >
+                <mat-icon>bug_report</mat-icon>
+                <span>Report Bug</span>
+              </button>
+
+              <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                [disabled]="isSubmitting"
+                (click)="submitResult(selectedResult)"
+                class="btn-submit"
+              >
+                <mat-spinner diameter="18" *ngIf="isSubmitting"></mat-spinner>
+                <span *ngIf="!isSubmitting">Save Result & Next</span>
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div *ngIf="isLoading" class="loading-container">
+  <mat-spinner diameter="40"></mat-spinner>
+  <p>Loading execution runner...</p>
+</div>

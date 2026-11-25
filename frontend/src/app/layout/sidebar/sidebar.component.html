@@ -1,0 +1,36 @@
+<aside class="sidebar" [class.collapsed]="isCollapsed">
+  <div class="sidebar-nav">
+    <div class="nav-section-title" *ngIf="!isCollapsed">Workspace</div>
+
+    <ng-container *ngFor="let item of navItems">
+      <!-- Enabled link -->
+      <a
+        *ngIf="!item.disabled"
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        class="nav-item"
+        [matTooltip]="isCollapsed ? item.label : ''"
+        matTooltipPosition="right"
+      >
+        <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+        <span class="nav-label" *ngIf="!isCollapsed">{{ item.label }}</span>
+      </a>
+
+      <!-- Disabled item (future phases) -->
+      <div
+        *ngIf="item.disabled"
+        class="nav-item disabled"
+        [matTooltip]="isCollapsed ? item.label + ' (Coming Soon)' : ''"
+        matTooltipPosition="right"
+      >
+        <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+        <span class="nav-label" *ngIf="!isCollapsed">{{ item.label }}</span>
+        <span class="badge" *ngIf="!isCollapsed && item.badge">{{ item.badge }}</span>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="sidebar-footer" *ngIf="!isCollapsed">
+    <div class="version-tag">Platform v0.3.0</div>
+  </div>
+</aside>

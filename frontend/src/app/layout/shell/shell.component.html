@@ -1,0 +1,12 @@
+<div class="app-shell">
+  <app-topbar
+    [isCollapsed]="sidebarCollapsed"
+    (toggleSidebar)="sidebarCollapsed = !sidebarCollapsed"
+  ></app-topbar>
+  <div class="shell-layout">
+    <app-sidebar [isCollapsed]="sidebarCollapsed"></app-sidebar>
+    <main class="page-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

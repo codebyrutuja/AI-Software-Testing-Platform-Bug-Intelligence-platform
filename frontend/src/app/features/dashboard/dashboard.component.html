@@ -1,0 +1,227 @@
+<div class="dashboard-container">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <header class="page-header">
+    <div class="title-group">
+      <h1>Analytics Dashboard</h1>
+      <p>QA health, traceability coverage, and defect insights</p>
+    </div>
+
+    <div class="header-actions">
+      <!-- Project selector -->
+      <div class="project-selector" *ngIf="projects.length > 0">
+        <label for="projSelect">Project:</label>
+        <select
+          id="projSelect"
+          [ngModel]="selectedProjectId"
+          (ngModelChange)="onProjectChange($event)"
+          class="form-control"
+        >
+          <option *ngFor="let p of projects" [value]="p.id">
+            [{{ p.key }}] {{ p.name }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Export CSV dropdown -->
+      <div class="export-wrapper" *ngIf="analytics">
+        <button mat-stroked-button (click)="toggleExportMenu()" class="btn-export">
+          <mat-icon>download</mat-icon>
+          <span>Export CSV</span>
+          <mat-icon>arrow_drop_down</mat-icon>
+        </button>
+        <div class="export-menu" *ngIf="exportMenuOpen">
+          <button class="export-item" (click)="exportCsv('runs')">
+            <mat-icon>play_circle_outline</mat-icon>
+            Export Test Runs
+          </button>
+          <button class="export-item" (click)="exportCsv('bugs')">
+            <mat-icon>bug_report</mat-icon>
+            Export Bugs
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Error ──────────────────────────────────────────────────────────── -->
+  <div *ngIf="errorMessage" class="error-banner">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- ── Loading ────────────────────────────────────────────────────────── -->
+  <div *ngIf="isLoading" class="loading-state">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading analytics...</p>
+  </div>
+
+  <!-- ── No project / no org ───────────────────────────────────────────── -->
+  <div *ngIf="!isLoading && !analytics && !errorMessage" class="empty-state">
+    <div class="empty-icon">
+      <mat-icon>analytics</mat-icon>
+    </div>
+    <h3>Select a Project to View Analytics</h3>
+    <p>Choose a project from the dropdown above, or create one first.</p>
+    <a mat-flat-button color="primary" routerLink="/projects">
+      <mat-icon>folder</mat-icon>
+      Go to Projects
+    </a>
+  </div>
+
+  <!-- ── Main Analytics Content ────────────────────────────────────────── -->
+  <div *ngIf="!isLoading && analytics" class="analytics-content">
+
+    <!-- ── Summary Cards Row ─────────────────────────────────────────── -->
+    <section class="summary-cards">
+
+      <!-- Health Score -->
+      <div class="summary-card" [class]="getHealthColor()">
+        <div class="card-icon">🏆</div>
+        <div class="card-value">{{ analytics.summary.health_score }}</div>
+        <div class="card-label">Health Score</div>
+        <div class="card-sub">/ 100</div>
+      </div>
+
+      <!-- Requirements -->
+      <div class="summary-card">
+        <div class="card-icon">📋</div>
+        <div class="card-value">{{ analytics.summary.total_requirements }}</div>
+        <div class="card-label">Requirements</div>
+        <div class="card-sub">
+          {{ analytics.requirement_coverage.coverage_percentage }}% covered
+        </div>
+      </div>
+
+      <!-- Test Cases -->
+      <div class="summary-card">
+        <div class="card-icon">🔬</div>
+        <div class="card-value">{{ analytics.summary.total_test_cases }}</div>
+        <div class="card-label">Test Cases</div>
+        <div class="card-sub">across all suites</div>
+      </div>
+
+      <!-- Test Runs -->
+      <div class="summary-card">
+        <div class="card-icon">▶️</div>
+        <div class="card-value">{{ analytics.summary.total_test_runs }}</div>
+        <div class="card-label">Test Runs</div>
+        <div class="card-sub">total executed</div>
+      </div>
+
+      <!-- Bugs -->
+      <div class="summary-card" [class.health-bad]="analytics.summary.total_bugs > 0 && analytics.bug_status.open > 5">
+        <div class="card-icon">🐞</div>
+        <div class="card-value">{{ analytics.summary.total_bugs }}</div>
+        <div class="card-label">Total Bugs</div>
+        <div class="card-sub">{{ analytics.bug_status.open }} open</div>
+      </div>
+
+    </section>
+
+    <!-- ── Empty run history notice ──────────────────────────────────── -->
+    <div *ngIf="analytics.run_history.length === 0" class="no-runs-notice">
+      <mat-icon>info_outline</mat-icon>
+      <span>No test runs yet — create a run in <a routerLink="/test-runs">Test Runs</a> to see charts.</span>
+    </div>
+
+    <!-- ── Charts Grid ───────────────────────────────────────────────── -->
+    <section class="charts-grid" *ngIf="analytics.run_history.length > 0 || analytics.summary.total_bugs > 0">
+
+      <!-- Run History Bar Chart -->
+      <div class="chart-card full-width" *ngIf="analytics.run_history.length > 0">
+        <div class="chart-header">
+          <h3>Test Run Pass / Fail History</h3>
+          <span class="chart-sub">Last {{ analytics.run_history.length }} run(s)</span>
+        </div>
+        <div class="chart-body" style="height: 280px;">
+          <canvas id="runChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Bug Severity Doughnut -->
+      <div class="chart-card" *ngIf="analytics.summary.total_bugs > 0">
+        <div class="chart-header">
+          <h3>Bug Severity Distribution</h3>
+        </div>
+        <div class="chart-body" style="height: 240px;">
+          <canvas id="bugSevChart"></canvas>
+        </div>
+        <div class="legend-row">
+          <span class="leg-item"><span class="dot" style="background:#dc2626"></span>Critical: {{ analytics.bug_severity.critical }}</span>
+          <span class="leg-item"><span class="dot" style="background:#f97316"></span>High: {{ analytics.bug_severity.high }}</span>
+          <span class="leg-item"><span class="dot" style="background:#eab308"></span>Medium: {{ analytics.bug_severity.medium }}</span>
+          <span class="leg-item"><span class="dot" style="background:#22c55e"></span>Low: {{ analytics.bug_severity.low }}</span>
+        </div>
+      </div>
+
+      <!-- Bug Status Bar Chart -->
+      <div class="chart-card" *ngIf="analytics.summary.total_bugs > 0">
+        <div class="chart-header">
+          <h3>Bug Status Lifecycle</h3>
+        </div>
+        <div class="chart-body" style="height: 240px;">
+          <canvas id="bugStatusChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Requirement Coverage Doughnut -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Requirement Coverage</h3>
+        </div>
+        <div class="chart-body coverage-chart-body" style="height: 220px;">
+          <div class="coverage-ring-wrapper">
+            <canvas id="coverageChart"></canvas>
+            <div class="coverage-label-center">
+              <span class="pct-big">{{ analytics.requirement_coverage.coverage_percentage }}%</span>
+              <span class="pct-sub">covered</span>
+            </div>
+          </div>
+        </div>
+        <div class="coverage-counts">
+          <span class="cov-item"><span class="dot" style="background:#3b82f6"></span>{{ analytics.requirement_coverage.covered }} Covered</span>
+          <span class="cov-item"><span class="dot" style="background:#cbd5e1"></span>{{ analytics.requirement_coverage.uncovered }} Uncovered</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── Uncovered Requirements Warning Table ───────────────────────── -->
+    <section
+      class="uncovered-section"
+      *ngIf="analytics.requirement_coverage.uncovered_requirements.length > 0"
+    >
+      <div class="uncovered-header">
+        <mat-icon class="warn-icon">warning</mat-icon>
+        <h3>Uncovered Requirements</h3>
+        <span class="uncovered-sub">These requirements have no linked test cases yet</span>
+      </div>
+
+      <table class="uncovered-table">
+        <thead>
+          <tr>
+            <th>Req Key</th>
+            <th>Title</th>
+            <th>Priority</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let req of analytics.requirement_coverage.uncovered_requirements">
+            <td><span class="req-key-badge">{{ req.req_key }}</span></td>
+            <td>{{ req.title }}</td>
+            <td>
+              <span class="pill priority" [class]="req.priority">{{ req.priority }}</span>
+            </td>
+            <td>
+              <span class="pill status">{{ req.status }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </div><!-- /analytics-content -->
+
+</div><!-- /dashboard-container -->

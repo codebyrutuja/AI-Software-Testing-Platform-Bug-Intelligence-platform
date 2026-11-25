@@ -1,0 +1,162 @@
+<div class="test-runs-container">
+  <!-- Topbar / Header -->
+  <header class="page-header">
+    <div class="title-group">
+      <h1>Test Runs & Execution</h1>
+      <p>Execute test cases, log Pass/Fail results, and track execution worksheets</p>
+    </div>
+
+    <div class="header-actions">
+      <!-- Project Selector -->
+      <div class="project-selector" *ngIf="projects.length > 0">
+        <label for="projSelect">Project:</label>
+        <select
+          id="projSelect"
+          [ngModel]="selectedProject?.id"
+          (ngModelChange)="onProjectChange($event)"
+          class="form-control"
+        >
+          <option *ngFor="let p of projects" [value]="p.id">
+            [{{ p.key }}] {{ p.name }}
+          </option>
+        </select>
+      </div>
+
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="openCreateRunDialog()"
+        [disabled]="!selectedProject"
+        class="btn-new-run"
+      >
+        <mat-icon>add</mat-icon>
+        <span>New Test Run</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Filter Bar -->
+  <section class="filters-bar" *ngIf="selectedProject">
+    <div class="filter-group">
+      <label for="statusFilter">Status:</label>
+      <select
+        id="statusFilter"
+        [(ngModel)]="selectedStatus"
+        (ngModelChange)="loadRuns()"
+        class="form-control-sm"
+      >
+        <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
+      </select>
+    </div>
+
+    <span class="count-label">Total: {{ totalCount }} runs</span>
+  </section>
+
+  <!-- Error Alert -->
+  <div *ngIf="errorMessage" class="error-banner">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <mat-spinner diameter="36"></mat-spinner>
+    <p>Loading test runs...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && runs.length === 0" class="empty-state">
+    <div class="empty-icon">
+      <mat-icon>play_circle_outline</mat-icon>
+    </div>
+    <h3>No Test Runs Found</h3>
+    <p>Create a test run to start executing test cases and recording pass/fail results.</p>
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="openCreateRunDialog()"
+      [disabled]="!selectedProject"
+    >
+      <mat-icon>add</mat-icon>
+      <span>Create First Test Run</span>
+    </button>
+  </div>
+
+  <!-- Test Runs List / Table -->
+  <div *ngIf="!isLoading && runs.length > 0" class="runs-table-container">
+    <table class="runs-table">
+      <thead>
+        <tr>
+          <th>Run Key</th>
+          <th>Name</th>
+          <th>Environment</th>
+          <th>Status</th>
+          <th style="min-width: 220px;">Progress</th>
+          <th>Created</th>
+          <th style="width: 140px; text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let run of runs" (click)="executeRun(run)" class="run-row">
+          <td class="run-key-cell">
+            <span class="key-badge">{{ run.run_key }}</span>
+          </td>
+
+          <td class="name-cell">
+            <div class="run-name">{{ run.name }}</div>
+            <div *ngIf="run.description" class="run-desc">{{ run.description }}</div>
+          </td>
+
+          <td>
+            <span class="env-badge">{{ run.environment }}</span>
+          </td>
+
+          <td>
+            <span class="status-badge" [class]="run.status">{{ run.status }}</span>
+          </td>
+
+          <td class="progress-cell">
+            <div class="progress-stats">
+              <span class="pct">{{ getPassedPercentage(run) }}% Passed</span>
+              <span class="counts">
+                <span class="c-pass" title="Passed">{{ run.passed_count }}P</span> /
+                <span class="c-fail" title="Failed">{{ run.failed_count }}F</span> /
+                <span class="c-block" title="Blocked">{{ run.blocked_count }}B</span> /
+                <span class="c-total">{{ run.total_count }} total</span>
+              </span>
+            </div>
+            <div class="mini-progress-bar">
+              <div class="bar-seg passed" [style.width.%]="(run.passed_count / run.total_count) * 100"></div>
+              <div class="bar-seg failed" [style.width.%]="(run.failed_count / run.total_count) * 100"></div>
+              <div class="bar-seg blocked" [style.width.%]="(run.blocked_count / run.total_count) * 100"></div>
+              <div class="bar-seg skipped" [style.width.%]="(run.skipped_count / run.total_count) * 100"></div>
+            </div>
+          </td>
+
+          <td class="date-cell">
+            {{ run.created_at | date:'shortDate' }}
+          </td>
+
+          <td class="actions-cell">
+            <button
+              mat-icon-button
+              color="primary"
+              matTooltip="Execute Run"
+              (click)="executeRun(run); $event.stopPropagation()"
+            >
+              <mat-icon>play_arrow</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="warn"
+              matTooltip="Delete Run"
+              (click)="deleteRun(run, $event)"
+            >
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

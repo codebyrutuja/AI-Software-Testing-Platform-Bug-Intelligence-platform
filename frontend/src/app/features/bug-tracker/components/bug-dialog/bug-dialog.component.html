@@ -1,0 +1,139 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <div class="header-icon">
+      <mat-icon>bug_report</mat-icon>
+    </div>
+    <div class="header-text">
+      <h2>Report New Bug</h2>
+      <p>Log defect details and link to requirements or test cases</p>
+    </div>
+    <button mat-icon-button (click)="dialogRef.close()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-body">
+    <div *ngIf="errorMessage" class="error-banner">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <div class="form-group">
+      <label for="bugTitle">Bug Summary / Title <span class="required">*</span></label>
+      <input
+        id="bugTitle"
+        type="text"
+        [(ngModel)]="title"
+        placeholder="e.g. Checkout page hangs when clicking Place Order"
+        class="form-control"
+      />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group flex-1">
+        <label for="severity">Severity</label>
+        <select id="severity" [(ngModel)]="severity" class="form-control">
+          <option *ngFor="let s of severities" [value]="s.value">{{ s.label }}</option>
+        </select>
+      </div>
+
+      <div class="form-group flex-1">
+        <label for="priority">Priority</label>
+        <select id="priority" [(ngModel)]="priority" class="form-control">
+          <option *ngFor="let p of priorities" [value]="p.value">{{ p.label }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group flex-1">
+        <label for="environment">Environment</label>
+        <input
+          id="environment"
+          type="text"
+          [(ngModel)]="environment"
+          placeholder="e.g. Staging, QA, Prod"
+          class="form-control"
+        />
+      </div>
+
+      <div class="form-group flex-1">
+        <label for="browserOs">Browser / OS</label>
+        <input
+          id="browserOs"
+          type="text"
+          [(ngModel)]="browserOs"
+          placeholder="e.g. Chrome 124 / Windows 11"
+          class="form-control"
+        />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group flex-1">
+        <label for="testCaseSelect">Linked Test Case</label>
+        <select id="testCaseSelect" [(ngModel)]="testCaseId" class="form-control">
+          <option [ngValue]="undefined">-- None --</option>
+          <option *ngFor="let tc of testCases" [value]="tc.id">
+            [{{ tc.tc_key }}] {{ tc.title }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group flex-1">
+        <label for="reqSelect">Linked Requirement</label>
+        <select id="reqSelect" [(ngModel)]="requirementId" class="form-control">
+          <option [ngValue]="undefined">-- None --</option>
+          <option *ngFor="let req of requirements" [value]="req.id">
+            [{{ req.req_key }}] {{ req.title }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="steps">Steps to Reproduce</label>
+      <textarea
+        id="steps"
+        [(ngModel)]="stepsToReproduce"
+        rows="3"
+        placeholder="1. Go to '/checkout'&#10;2. Add items to cart&#10;3. Click 'Pay Now'"
+        class="form-control"
+      ></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group flex-1">
+        <label for="expected">Expected Behavior</label>
+        <textarea
+          id="expected"
+          [(ngModel)]="expectedBehavior"
+          rows="2"
+          placeholder="Payment completes and order confirmation displays"
+          class="form-control"
+        ></textarea>
+      </div>
+
+      <div class="form-group flex-1">
+        <label for="actual">Actual Behavior</label>
+        <textarea
+          id="actual"
+          [(ngModel)]="actualBehavior"
+          rows="2"
+          placeholder="Infinite spinner, console shows HTTP 500"
+          class="form-control"
+        ></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button mat-button (click)="dialogRef.close()" class="btn-cancel" [disabled]="isSaving">
+      Cancel
+    </button>
+    <button mat-flat-button color="warn" (click)="onSave()" class="btn-save" [disabled]="isSaving">
+      <mat-spinner diameter="18" *ngIf="isSaving" class="spinner"></mat-spinner>
+      <span *ngIf="!isSaving">Submit Bug</span>
+    </button>
+  </div>
+</div>

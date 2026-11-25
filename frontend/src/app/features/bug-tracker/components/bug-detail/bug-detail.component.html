@@ -1,0 +1,108 @@
+<div class="detail-container">
+  <div class="detail-header">
+    <div class="header-left">
+      <span class="bug-key">{{ bug.bug_key }}</span>
+      <div class="status-select-wrapper">
+        <label for="statusSelect">Status:</label>
+        <select
+          id="statusSelect"
+          [ngModel]="bug.status"
+          (ngModelChange)="onStatusChange($event)"
+          [disabled]="isUpdating"
+          class="status-select"
+          [class]="bug.status"
+        >
+          <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
+        </select>
+        <mat-spinner diameter="16" *ngIf="isUpdating"></mat-spinner>
+      </div>
+    </div>
+
+    <button mat-icon-button (click)="onClose()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="detail-body">
+    <div *ngIf="errorMessage" class="error-banner">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <h1 class="bug-title">{{ bug.title }}</h1>
+
+    <!-- Meta pills row -->
+    <div class="meta-pills">
+      <span class="pill severity" [class]="bug.severity">Severity: {{ bug.severity }}</span>
+      <span class="pill priority" [class]="bug.priority">Priority: {{ bug.priority }}</span>
+      <span class="pill env" *ngIf="bug.environment">Env: {{ bug.environment }}</span>
+      <span class="pill browser" *ngIf="bug.browser_os">OS: {{ bug.browser_os }}</span>
+    </div>
+
+    <!-- Description -->
+    <div class="section-box" *ngIf="bug.description">
+      <h3>Description</h3>
+      <p>{{ bug.description }}</p>
+    </div>
+
+    <!-- Steps to reproduce -->
+    <div class="section-box" *ngIf="bug.steps_to_reproduce">
+      <h3>Steps to Reproduce</h3>
+      <pre class="steps-pre">{{ bug.steps_to_reproduce }}</pre>
+    </div>
+
+    <!-- Expected & Actual -->
+    <div class="grid-2" *ngIf="bug.expected_behavior || bug.actual_behavior">
+      <div class="section-box" *ngIf="bug.expected_behavior">
+        <h3 class="expected-h">Expected Behavior</h3>
+        <p>{{ bug.expected_behavior }}</p>
+      </div>
+      <div class="section-box" *ngIf="bug.actual_behavior">
+        <h3 class="actual-h">Actual Behavior</h3>
+        <p>{{ bug.actual_behavior }}</p>
+      </div>
+    </div>
+
+    <!-- Traceability / Linked Cards -->
+    <div class="section-box traceability-section">
+      <h3>Traceability & Links</h3>
+      <div class="links-grid">
+        <div class="link-card" *ngIf="bug.tc_key">
+          <div class="link-icon tc"><mat-icon>science</mat-icon></div>
+          <div class="link-info">
+            <span class="link-sub">Exposed by Test Case</span>
+            <span class="link-title">[{{ bug.tc_key }}] {{ bug.tc_title }}</span>
+          </div>
+        </div>
+
+        <div class="link-card" *ngIf="bug.requirement_key">
+          <div class="link-icon req"><mat-icon>assignment</mat-icon></div>
+          <div class="link-info">
+            <span class="link-sub">Violates Requirement</span>
+            <span class="link-title">[{{ bug.requirement_key }}] {{ bug.requirement_title }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reporter & Dates -->
+    <div class="section-box audit-section">
+      <div class="audit-item" *ngIf="bug.reporter_name">
+        <span class="label">Reported By:</span>
+        <span class="val">{{ bug.reporter_name }}</span>
+      </div>
+      <div class="audit-item">
+        <span class="label">Reported At:</span>
+        <span class="val">{{ bug.reported_at | date:'medium' }}</span>
+      </div>
+      <div class="audit-item" *ngIf="bug.resolved_at">
+        <span class="label">Resolved At:</span>
+        <span class="val resolved-val">{{ bug.resolved_at | date:'medium' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-actions">
+    <button mat-flat-button color="primary" (click)="onClose()">Close</button>
+  </div>
+</div>

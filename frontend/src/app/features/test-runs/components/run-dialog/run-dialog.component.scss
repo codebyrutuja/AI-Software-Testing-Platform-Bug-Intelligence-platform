@@ -1,0 +1,251 @@
+.dialog-container {
+  width: 580px;
+  max-width: 95vw;
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+
+  .header-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header-text {
+    flex: 1;
+
+    h2 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    p {
+      margin: 2px 0 0;
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+  }
+
+  .close-btn {
+    color: #94a3b8;
+  }
+}
+
+.dialog-body {
+  padding: 20px 24px;
+  max-height: 60vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  border-radius: 6px;
+  font-size: 0.875rem;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #334155;
+
+    .required {
+      color: #ef4444;
+    }
+  }
+
+  .form-control {
+    padding: 9px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #0f172a;
+    transition: border-color 0.15s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+  }
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+
+  .flex-1 {
+    flex: 1;
+  }
+}
+
+.test-case-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .selection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #334155;
+    }
+
+    .btn-text {
+      background: none;
+      border: none;
+      color: #2563eb;
+      font-size: 0.825rem;
+      cursor: pointer;
+      font-weight: 500;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .case-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .case-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: #f8fafc;
+    }
+
+    &.selected {
+      background: #f0fdf4;
+    }
+
+    .case-info {
+      flex: 1;
+
+      .case-title-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .tc-key {
+          font-family: monospace;
+          font-size: 0.775rem;
+          background: #e2e8f0;
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-weight: 600;
+          color: #1e293b;
+        }
+
+        .tc-title {
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: #1e293b;
+        }
+      }
+
+      .case-meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 4px;
+
+        .badge {
+          font-size: 0.725rem;
+          padding: 1px 6px;
+          border-radius: 4px;
+          text-transform: capitalize;
+
+          &.priority {
+            &.critical { background: #fee2e2; color: #b91c1c; }
+            &.high { background: #ffedd5; color: #c2410c; }
+            &.medium { background: #fef3c7; color: #b45309; }
+            &.low { background: #e0f2fe; color: #0369a1; }
+          }
+
+          &.type {
+            background: #f1f5f9;
+            color: #475569;
+          }
+        }
+
+        .suite-name {
+          font-size: 0.75rem;
+          color: #64748b;
+        }
+      }
+    }
+  }
+
+  .loading-state, .empty-cases {
+    padding: 20px;
+    text-align: center;
+    font-size: 0.875rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+}

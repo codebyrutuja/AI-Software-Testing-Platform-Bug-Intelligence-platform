@@ -1,0 +1,64 @@
+<header class="topbar">
+  <div class="topbar-left">
+    <button mat-icon-button class="menu-btn" (click)="onToggle()" aria-label="Toggle navigation">
+      <mat-icon>{{ isCollapsed ? 'menu_open' : 'menu' }}</mat-icon>
+    </button>
+    <div class="brand">
+      <mat-icon class="brand-icon">pest_control</mat-icon>
+      <span class="brand-name">AI Testing Platform</span>
+    </div>
+  </div>
+
+  <div class="topbar-center">
+    <button mat-button [matMenuTriggerFor]="orgMenu" class="org-switcher-btn">
+      <mat-icon class="org-icon">business</mat-icon>
+      <span class="org-name">{{ activeOrg?.name || 'Select Organization' }}</span>
+      <mat-icon class="dropdown-arrow">arrow_drop_down</mat-icon>
+    </button>
+
+    <mat-menu #orgMenu="matMenu" class="org-dropdown-menu">
+      <div class="menu-header">Organizations</div>
+      <button
+        mat-menu-item
+        *ngFor="let org of organizations"
+        (click)="selectOrg(org)"
+        [class.active-item]="org.id === activeOrg?.id"
+      >
+        <mat-icon class="check-icon" *ngIf="org.id === activeOrg?.id">check</mat-icon>
+        <mat-icon class="inactive-icon" *ngIf="org.id !== activeOrg?.id">corporate_fare</mat-icon>
+        <span class="org-item-name">{{ org.name }}</span>
+      </button>
+
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="promptCreateOrg()" class="create-org-btn">
+        <mat-icon>add_circle_outline</mat-icon>
+        <span>Create Organization</span>
+      </button>
+    </mat-menu>
+  </div>
+
+  <div class="topbar-right">
+    <button mat-button [matMenuTriggerFor]="userMenu" class="user-profile-btn">
+      <div class="avatar">
+        {{ (currentUser?.full_name || currentUser?.email || 'U')[0].toUpperCase() }}
+      </div>
+      <div class="user-info">
+        <span class="user-name">{{ currentUser?.full_name || currentUser?.email }}</span>
+        <span class="user-role">{{ currentUser?.role || 'member' }}</span>
+      </div>
+      <mat-icon class="dropdown-arrow">arrow_drop_down</mat-icon>
+    </button>
+
+    <mat-menu #userMenu="matMenu" class="user-dropdown-menu">
+      <div class="user-menu-header">
+        <div class="user-menu-name">{{ currentUser?.full_name || 'User' }}</div>
+        <div class="user-menu-email">{{ currentUser?.email }}</div>
+      </div>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon color="warn">logout</mat-icon>
+        <span class="logout-text">Sign Out</span>
+      </button>
+    </mat-menu>
+  </div>
+</header>

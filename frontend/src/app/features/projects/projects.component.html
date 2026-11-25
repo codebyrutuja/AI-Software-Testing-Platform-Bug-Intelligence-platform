@@ -1,0 +1,73 @@
+<div class="projects-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-titles">
+      <h1 class="page-title">Projects</h1>
+      <p class="page-subtitle" *ngIf="activeOrg">
+        Workspaces and testing suites for <strong>{{ activeOrg.name }}</strong>
+      </p>
+      <p class="page-subtitle" *ngIf="!activeOrg">
+        Select or create an organization in the topbar to view projects.
+      </p>
+    </div>
+
+    <button
+      mat-flat-button
+      color="primary"
+      class="create-project-btn"
+      (click)="openCreateProjectDialog()"
+      [disabled]="!activeOrg"
+    >
+      <mat-icon>add</mat-icon>
+      <span>New Project</span>
+    </button>
+  </div>
+
+  <!-- Error Banner -->
+  <div class="error-banner" *ngIf="errorMessage">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading projects...</p>
+  </div>
+
+  <!-- Empty State (No Projects) -->
+  <div class="empty-state" *ngIf="!isLoading && activeOrg && projects.length === 0">
+    <div class="empty-icon-wrap">
+      <mat-icon class="empty-icon">folder_open</mat-icon>
+    </div>
+    <h2>No projects found</h2>
+    <p>Get started by creating your first testing project for this organization.</p>
+    <button
+      mat-flat-button
+      color="primary"
+      class="empty-create-btn"
+      (click)="openCreateProjectDialog()"
+    >
+      <mat-icon>add</mat-icon>
+      <span>Create Project</span>
+    </button>
+  </div>
+
+  <!-- Empty State (No Active Org) -->
+  <div class="empty-state" *ngIf="!isLoading && !activeOrg">
+    <div class="empty-icon-wrap">
+      <mat-icon class="empty-icon">corporate_fare</mat-icon>
+    </div>
+    <h2>No Organization Selected</h2>
+    <p>Please create or switch to an organization using the selector in the top bar.</p>
+  </div>
+
+  <!-- Projects Grid -->
+  <div class="projects-grid" *ngIf="!isLoading && projects.length > 0">
+    <app-project-card
+      *ngFor="let project of projects"
+      [project]="project"
+      (delete)="onDeleteProject($event)"
+    ></app-project-card>
+  </div>
+</div>

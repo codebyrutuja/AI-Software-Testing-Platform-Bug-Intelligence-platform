@@ -1,0 +1,104 @@
+<div class="auth-container">
+  <mat-card class="auth-card">
+    <mat-card-header>
+      <div class="auth-header">
+        <mat-icon class="platform-icon">bug_report</mat-icon>
+        <h1>AI Testing Platform</h1>
+        <p class="subtitle">Create your account</p>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Error Banner -->
+      <div class="error-banner" *ngIf="errorMessage">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <!-- Success Banner -->
+      <div class="success-banner" *ngIf="successMessage">
+        <mat-icon>check_circle_outline</mat-icon>
+        <span>{{ successMessage }}</span>
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <!-- Full Name (optional) -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Full Name (optional)</mat-label>
+          <input matInput formControlName="full_name" placeholder="Jane Smith" />
+          <mat-icon matPrefix>person</mat-icon>
+        </mat-form-field>
+
+        <!-- Email -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email Address</mat-label>
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            placeholder="you@company.com"
+            autocomplete="email"
+          />
+          <mat-icon matPrefix>email</mat-icon>
+          <mat-error *ngIf="emailControl?.hasError('required')">Email is required</mat-error>
+          <mat-error *ngIf="emailControl?.hasError('email')">Enter a valid email address</mat-error>
+        </mat-form-field>
+
+        <!-- Password -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            [type]="hidePassword ? 'password' : 'text'"
+            formControlName="password"
+            autocomplete="new-password"
+          />
+          <mat-icon matPrefix>lock</mat-icon>
+          <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-hint>Min 8 chars, one uppercase letter, one digit</mat-hint>
+          <mat-error *ngIf="passwordControl?.hasError('required')">Password is required</mat-error>
+          <mat-error *ngIf="passwordControl?.hasError('minlength')">At least 8 characters required</mat-error>
+          <mat-error *ngIf="passwordControl?.hasError('pattern')">Must include uppercase letter and digit</mat-error>
+        </mat-form-field>
+
+        <!-- Confirm Password -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Confirm Password</mat-label>
+          <input
+            matInput
+            [type]="hideConfirmPassword ? 'password' : 'text'"
+            formControlName="confirmPassword"
+            autocomplete="new-password"
+          />
+          <mat-icon matPrefix>lock_outline</mat-icon>
+          <button mat-icon-button matSuffix type="button" (click)="hideConfirmPassword = !hideConfirmPassword">
+            <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error *ngIf="confirmPasswordControl?.hasError('required')">Please confirm your password</mat-error>
+          <mat-error *ngIf="passwordsMismatch">Passwords do not match</mat-error>
+        </mat-form-field>
+
+        <!-- Submit -->
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="full-width submit-btn"
+          [disabled]="registerForm.invalid || isLoading"
+        >
+          <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+          <span *ngIf="!isLoading">Create Account</span>
+        </button>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <p class="login-link">
+        Already have an account?
+        <a routerLink="/login">Sign in</a>
+      </p>
+    </mat-card-actions>
+  </mat-card>
+</div>

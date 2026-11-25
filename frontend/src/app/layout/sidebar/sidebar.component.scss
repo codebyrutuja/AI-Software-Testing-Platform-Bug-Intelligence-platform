@@ -1,0 +1,120 @@
+.sidebar {
+  width: 240px;
+  height: calc(100vh - 64px);
+  background-color: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-x: hidden;
+  position: sticky;
+  top: 64px;
+
+  &.collapsed {
+    width: 68px;
+
+    .nav-item {
+      justify-content: center;
+      padding: 10px 0;
+      margin: 4px 10px;
+    }
+  }
+}
+
+.sidebar-nav {
+  padding: 16px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #94a3b8;
+  padding: 8px 12px 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  margin: 2px 4px;
+  border-radius: 8px;
+  color: #475569;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  user-select: none;
+  cursor: pointer;
+
+  .nav-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #64748b;
+    flex-shrink: 0;
+  }
+
+  .nav-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &:hover:not(.disabled) {
+    background-color: #f1f5f9;
+    color: #0f172a;
+
+    .nav-icon {
+      color: #2563eb;
+    }
+  }
+
+  &.active {
+    background-color: #eff6ff;
+    color: #1d4ed8;
+    font-weight: 600;
+
+    .nav-icon {
+      color: #2563eb;
+    }
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+
+    &:hover {
+      background-color: transparent;
+    }
+
+    .badge {
+      margin-left: auto;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      background-color: #f1f5f9;
+      color: #64748b;
+      padding: 2px 6px;
+      border-radius: 9999px;
+      border: 1px solid #e2e8f0;
+    }
+  }
+}
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid #f1f5f9;
+
+  .version-tag {
+    font-size: 11px;
+    color: #94a3b8;
+    text-align: center;
+  }
+}
