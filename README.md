@@ -162,3 +162,75 @@ ng test
 - [ ] Phase 10: Playwright Integration
 - [ ] Phase 11: Production Deployment
 
+🏛️ System Architecture
+┌────────────────────────────────────────────────────────────────────────┐
+│                        ANGULAR 17 CLIENT                               │
+│   (Standalone Components, Material Design, Chart.js, JWT Interceptor)  │
+└──────────────────────────────────┬─────────────────────────────────────┘
+                                   │ HTTPS / REST (JSON)
+                                   ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                         FASTAPI BACKEND                                │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │ API Endpoints (v1)                                               │  │
+│  │ /auth · /organizations · /projects · /requirements · /test-cases │  │
+│  │ /test-runs · /bugs · /analytics                                  │  │
+│  └───────────────────────────────┬──────────────────────────────────┘  │
+│                                  │                                     │
+│  ┌───────────────────────────────▼──────────────────────────────────┐  │
+│  │ Business Logic & Security Services (JWT, Multi-Tenant Guard)     │  │
+│  └───────────────────────────────┬──────────────────────────────────┘  │
+│                                  │                                     │
+│  ┌───────────────────────────────▼──────────────────────────────────┐  │
+│  │ Data Access Layer (SQLAlchemy ORM + Repository Pattern)          │  │
+│  └───────────────────────────────┬──────────────────────────────────┘  │
+└──────────────────────────────────┼─────────────────────────────────────┘
+                                   │ SQL (psycopg3)
+                                   ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                        POSTGRESQL DATABASE                             │
+│   (Tenants · Users · Reqs · Test Cases · Runs · Bugs · Audits)         │
+└────────────────────────────────────────────────────────────────────────┘
+
+
+✨ Key Platform Features
+Multi-Tenant Workspaces (Phase 3): Isolated organization workspaces, role-based access control (Admin, Member, Superadmin), and project management.
+Requirements Management & PRD Ingestion (Phase 4): Upload product specifications (.pdf, .md, .txt) with document parsing and acceptance criteria tracking.
+Test Case Authoring & Suites (Phase 5): Multi-step procedural testing with preconditions, test data, expected results, priorities, and requirement traceability.
+Test Execution Worksheets (Phase 6): Group test cases into execution runs by environment (Local, Staging, QA, Production). Split-screen live runner with single-click Pass/Fail/Blocked/Skip logging.
+Bug Tracker & Defect Management (Phase 7): 1-click defect reporting from failed execution steps. Full lifecycle management (Open 
+→
+→ In Progress 
+→
+→ Resolved 
+→
+→ Closed) with bidirectional requirement linking.
+Executive Analytics & Reporting (Phase 8): Health scoring algorithm (0–100), pass/fail velocity bar charts, bug severity doughnut charts, requirement coverage rings, and one-click CSV report exports.
+
+🛠️ Technology Stack
+Layer	Technologies
+Frontend	Angular 17, TypeScript, Angular Material, Chart.js, SCSS
+Backend	FastAPI, Python 3.13, Pydantic v2, Uvicorn
+Database	PostgreSQL, SQLAlchemy 2.0 ORM, Alembic Migrations
+Authentication	JWT (OAuth2 Password Bearer), Passlib (Bcrypt)
+Testing	Pytest, Pytest-Asyncio, HTTPX (52 automated integration tests)
+
+
+🚀 Local Quickstart Guide
+1. Prerequisites
+Python 3.11 – 3.13
+Node.js 18+ and npm 9+
+PostgreSQL 14+
+
+Roadmap & Upcoming Milestones
+ Phase 1–2: Monorepo Architecture, JWT Auth, Database Schema
+ Phase 3: Multi-Tenant Organizations & Projects
+ Phase 4: Requirements Ingestion & PRD Parser
+ Phase 5: Test Cases & Suites Procedural Authoring
+ Phase 6: Test Execution Worksheets & Interactive Runner
+ Phase 7: Bug Tracker & Defect Lifecycle Management
+ Phase 8: Executive Analytics Dashboard & CSV Exports
+ Phase 9: AI Test Case Synthesis & Root-Cause Intelligence (LLM)
+ Phase 10: Playwright Autonomous Browser Automation
+ Phase 11: Production Dockerization, CI/CD, & Cloud Deployment
+ 
